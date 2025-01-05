@@ -1,3 +1,6 @@
+module "sqs" {
+  source = "../sqs"
+}
 resource "aws_sns_topic" "notifications" {
   name = "notifications"
 }

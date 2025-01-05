@@ -8,17 +8,17 @@ module "ec2" {
   ami_id = var.ami_id
 }
 
+module "sns" {
+  source = "./modules/sns"
+}
+
 module "lambda" {
   source = "./modules/lambda"
-  SNS_TOPIC_ARN = aws_sns_topic.notifications.arn
+  SNS_TOPIC_ARN = module.sns.notifications_arn
 }
 
 module "sg" {
   source = "./modules/sg"
-}
-
-module "sns" {
-  source = "./modules/sns"
 }
 
 module "sqs" {

@@ -38,7 +38,7 @@ resource "aws_iam_policy" "sns_publish_policy" {
             {
                 Action   = "sns:Publish",
                 Effect   = "Allow",
-                Resource = aws_sns_topic.notifications.arn
+                Resource = module.sns.notifications_arn
             }
         ]
     })

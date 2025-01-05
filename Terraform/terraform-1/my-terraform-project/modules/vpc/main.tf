@@ -25,10 +25,11 @@ resource "aws_route_table" "public_rt" {
     {
       cidr_block = "0.0.0.0/0"
       gateway_id = aws_internet_gateway.igw.id
+      description = "Allow Internet access"
     }
   ]
 }
 resource "aws_route_table_association" "public_association" {
-  subnet_id = aws_subnet.public_subent.id
+  subnet_id = aws_subnet.public_subnet.id
   route_table_id = aws_route_table.public_rt.id
 }
