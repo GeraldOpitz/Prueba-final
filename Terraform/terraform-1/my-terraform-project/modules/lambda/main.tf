@@ -1,3 +1,7 @@
+module "sns" {
+  source = "../sns"
+}
+
 resource "aws_lambda_function" "process_message" {
     function_name = "processMessage"
     filename = "lambda.zip"
