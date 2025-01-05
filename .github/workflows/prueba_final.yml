@@ -24,14 +24,6 @@ jobs:
         run: |
           aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.us-east-1.amazonaws.com
 
-      - name: Build Docker Image
-        run: docker build -t web-app .
-
-      - name: Tag and Push Docker Image
-        run: |
-          docker tag web-app:latest ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.us-east-1.amazonaws.com/web-app:latest
-          docker push ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.us-east-1.amazonaws.com/web-app:latest
-
       - name: Set up terraform
         uses: hashicorp/setup-terraform@v2
         with:
@@ -45,6 +37,14 @@ jobs:
 
       - name: Terraform Apply
         run: terraform apply -auto-approve
+
+      - name: Build Docker Image
+        run: docker build -t web-app .
+
+      - name: Tag and Push Docker Image
+        run: |
+          docker tag web-app:latest ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.us-east-1.amazonaws.com/web-app:latest
+          docker push ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.us-east-1.amazonaws.com/web-app:latest
 
       - name: Scan Terraform Files with Snyk
         uses: snyk/actions/iac@master
