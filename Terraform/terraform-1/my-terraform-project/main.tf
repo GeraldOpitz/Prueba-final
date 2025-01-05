@@ -23,6 +23,7 @@ module "sg" {
 
 module "sqs" {
   source = "./modules/sqs"
+  lambda_arn = module.lambda.process_message_arn
 }
 
 module "vpc" {
