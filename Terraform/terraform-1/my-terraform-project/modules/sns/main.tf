@@ -5,7 +5,7 @@ resource "aws_sns_topic" "notifications" {
 resource "aws_sns_topic_subscription" "sns_to_sqs" {
     topic_arn = aws_sns_topic.notifications.arn
     protocol  = "sqs"
-    endpoint  = aws_sqs_queue.message_queue.arn
+    endpoint  = module.sqs.message_queue_arn
 }
 
 resource "aws_sqs_queue_policy" "sqs_policy" {
