@@ -10,7 +10,7 @@ module "ec2" {
 
 module "lambda" {
   source = "./modules/lambda"
-  SNS_TOPIC_ARN = module.sns.topic_arn
+  SNS_TOPIC_ARN = aws_sns_topic.notifications.arn
 }
 
 module "sg" {
