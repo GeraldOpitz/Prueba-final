@@ -1,0 +1,85 @@
+name: Build and Push Docker Image
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Set up AWS CLI
+        uses: aws-actions/configure-aws-credentials@v3
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        run: |
+          aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin ${{ steps.terraform.outputs.ecr_repository_url }}
+
+      - name: Build Docker Image
+        run: docker build -t web-app .
+
+      - name: Tag and Push Docker Image
+        run: |
+          docker tag web-app:latest ${{ steps.terraform.outputs.ecr_repository_url }}:latest
+          docker push ${{ steps.terraform.outputs.ecr_repository_url }}:latest
+
+      - name: Set up terraform
+        uses: hashicorp/setup-terraform@v2
+        with:
+            terraform_version: 1.5.6
+
+      - name: Terraform Init
+        run: terraform init
+
+      - name: Terraform Plan
+        run: terraform plan
+
+      - name: Terraform Apply
+        run: terraform apply -auto-approve
+
+      - name: Scan Terraform Files with Snyk
+        uses: snyk/actions/iac@master
+        with:
+          file: Terraform/terraform-1/my-terraform-project
+          args: --severity-threshold=low
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+
+      - name: Scan Docker Image with Snyk
+        uses: snyk/actions/docker@master
+        continue-on-error: true
+        with:
+          image: ${{ steps.terraform.outputs.ecr_repository_url }}:latest
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+
+      - name: Enable ECR Image Scanning
+        run: |
+          aws ecr put-image-scanning-configuration \
+            --repository-name prueba_final_repo \
+            --image-scanning-configuration scanOnPush=true \
+            --region us-east-1
+  
+      - name: Start ECR Image Scan
+        run: |
+          aws ecr start-image-scan \
+            --repository-name prueba_final_repo \
+            --image-id imageTag=latest \
+            --region us-east-1
+  
+      - name: Check ECR Scan Results
+        run: |
+          aws ecr describe-image-scan-findings \
+            --repository-name prueba_final_repo \
+            --image-id imageTag=latest \
+            --region us-east-1
+        
