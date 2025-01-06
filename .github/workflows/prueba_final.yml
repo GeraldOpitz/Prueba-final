@@ -68,7 +68,7 @@ jobs:
         uses: snyk/actions/docker@master
         continue-on-error: true
         with:
-          image: ${{ steps.terraform.outputs.ecr_repository_url }}:latest
+          image: web-app:latest
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
 
@@ -85,6 +85,16 @@ jobs:
             --repository-name prueba-final \
             --image-id imageTag=latest \
             --region us-east-1
+
+      - name: Wait for ECR Image Scan to complete
+        run: |
+          STATUS="IN_PROGRESS"
+          while [[ "$STATUS" == "IN_PROGRESS" ]]; do
+            echo "Waiting for scan to complete..."
+            sleep 30
+            STATUS=$(aws ecr describe-image-scan-findings --repository-name prueba-final --image-id imageTag=latest --region us-east-1 --query 'imageScanStatus.status' --output text)
+          done
+          echo "Scan complete, fetching results..."            
   
       - name: Check ECR Scan Results
         run: |
