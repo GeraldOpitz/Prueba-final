@@ -1,3 +1,4 @@
-output "ecr_data_json" {
-  value = module.ecr.ecr_data_json
+output "ecr_repository_url" {
+  value = module.ecr.ecr_repository_url
+  sensitive = false
 }

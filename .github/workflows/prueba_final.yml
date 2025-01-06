@@ -47,25 +47,16 @@ jobs:
           cd Terraform/terraform-1/my-terraform-project 
           terraform apply -auto-approve
 
-      - name: Debug Terraform Output
+      - name: Export ECR repository URL
         run: |
           cd Terraform/terraform-1/my-terraform-project
-          terraform output -json ecr_data_json
+          export ECR_REPOSITORY_URL=$(terraform output -raw ecr_repository_url)
+          echo "ECR_REPOSITORY_URL=$ECR_REPOSITORY_URL" >> $GITHUB_ENV
 
-      - name: Generate ecr_data.json
+      - name: Debug ECR_REPOSITORY_URL
         run: |
-          cd Terraform/terraform-1/my-terraform-project
-          terraform output -json ecr_data_json > ../../../api/ecr_data.json
-
-
-      - name: Verificar existencia de ecr_data.json
-        run: |
-          ls api
-          
-      - name: Verificar contenido de ecr_data.json
-        run: |
-          cat api/ecr_data.json
-
+          echo "Valor de la variable ECR_REPOSITORY_URL: $ECR_REPOSITORY_URL"
+        
       - name: Install Node.js dependencies
         run: |
           cd api
