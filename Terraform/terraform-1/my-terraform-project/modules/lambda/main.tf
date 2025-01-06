@@ -45,27 +45,29 @@ resource "aws_iam_policy" "sns_publish_policy" {
 }
 
 resource "aws_iam_policy" "lambda_sqs_policy" {
-  name        = "LambdaSQSPolicy"
+  name        = "lambda_sqs_policy"
   description = "Policy to allow Lambda to access SQS"
   policy = jsonencode({
     Version = "2012-10-17",
     Statement = [
       {
-        Effect   = "Allow",
         Action   = [
+          "sqs:SendMessage",
           "sqs:ReceiveMessage",
           "sqs:DeleteMessage",
           "sqs:GetQueueAttributes",
           "sqs:ChangeMessageVisibility",
-          "sqs:SendMessage"
+
         ],
+        Effect   = "Allow",
         Resource = var.SQS_QUEUE_ARN
       }
     ]
   })
 }
 
-resource "aws_iam_role_policy_attachment" "lambda_sns_publish" {
+resource "aws_iam_role_policy_attachment" "lambda_sqs_attachment" {
     role       = aws_iam_role.lambda_exec.name
-    policy_arn = aws_iam_policy.sns_publish_policy.arn
+    policy_arn = aws_iam_policy.lambda_sqs_policy
+
 }
