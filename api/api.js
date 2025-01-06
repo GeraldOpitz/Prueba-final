@@ -4,8 +4,19 @@ const fs = require('fs');
 
 const app = express();
 
-const terraformData = JSON.parse(fs.readFileSync('ecr_data.json', 'utf-8'));
-const ECR_URL = terraformData.ecr_repository_url;
+let ECR_URL;
+
+try {
+    const terraformData = JSON.parse(fs.readFileSync('ecr_data.json', 'utf-8'));
+    ECR_URL = terraformData.ecr_repository_url;
+
+    if (!ECR_URL) {
+        throw new Error('La URL del repositorio ECR no está definida en ecr_data.json');
+    }
+} catch (error) {
+    console.error('Error al leer o parsear ecr_data.json:', error);
+    process.exit(1);
+}
 
 app.get('/fetch-data', async (req, res) => {
     try {

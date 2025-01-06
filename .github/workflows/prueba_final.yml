@@ -52,6 +52,15 @@ jobs:
           cd Terraform/terraform-1/my-terraform-project
           terraform output -json ecr_data_json > ../../../api/ecr_data.json
 
+
+      - name: Verificar existencia de ecr_data.json
+        run: |
+          ls api
+          
+      - name: Verificar contenido de ecr_data.json
+        run: |
+          cat api/ecr_data.json
+
       - name: Install Node.js dependencies
         run: |
           cd api
