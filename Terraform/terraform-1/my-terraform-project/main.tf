@@ -6,6 +6,19 @@ module "ec2" {
   source = "./modules/ec2"
   instance_type = var.instance_type
   ami_id = var.ami_id
+  vpc_id = module.vpc.vpc_id
+  public_subnet_id = module.vpc.public_subnet_id
+  private_subnet_id = module.vpc.private_subnet_id
+  security_groups = [module.sg.web_sg_name]
+}
+
+module "vpc" {
+  source = "./modules/vpc"
+}
+
+module "sg" {
+  source = "./modules/sg"
+  vpc_id = module.vpc.vpc_id
 }
 
 module "sns" {
