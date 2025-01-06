@@ -30,6 +30,7 @@ resource "aws_route_table" "public_rt" {
       core_network_arn = ""
       destination_prefix_list_id = ""
       egress_only_gateway_id = ""
+      ipv6_cidr_block = "::/0"
       local_gateway_id = ""
       nat_gateway_id = ""
       network_interface_id = ""
