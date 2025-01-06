@@ -47,10 +47,16 @@ jobs:
           cd Terraform/terraform-1/my-terraform-project 
           terraform apply -auto-approve
 
+      - name: Debug Terraform Output
+        run: |
+          cd Terraform/terraform-1/my-terraform-project
+          terraform output -json ecr_data_json
+
       - name: Generate ecr_data.json
         run: |
           cd Terraform/terraform-1/my-terraform-project
-          terraform output -json ecr_data_json | jq -r . > ../../../api/ecr_data.json
+          terraform output -json ecr_data_json | jq -r 'fromjson' > ../../../api/ecr_data.json
+
 
       - name: Verificar existencia de ecr_data.json
         run: |
