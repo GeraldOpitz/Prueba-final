@@ -5,3 +5,7 @@ variable "SNS_TOPIC_ARN" {
 variable "SQS_QUEUE_ARN" {
   type = string
 }
+
+variable "SQS_QUEUE_URL" {
+  type = string
+}

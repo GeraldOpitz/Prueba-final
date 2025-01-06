@@ -27,25 +27,40 @@ jobs:
       - name: Set up terraform
         uses: hashicorp/setup-terraform@v2
         with:
-            terraform_version: 1.5.6
+          terraform_version: 1.5.6
 
       - name: Clean .terraform directory
         run: rm -rf .terraform
           
       - name: Terraform Init
         run: |
-            cd Terraform/terraform-1/my-terraform-project
-            terraform init
+          cd Terraform/terraform-1/my-terraform-project
+          terraform init
 
       - name: Terraform Plan
         run: |
           cd Terraform/terraform-1/my-terraform-project 
-          terraform plan -destroy
+          terraform plan
 
       - name: Terraform Apply
         run: |
           cd Terraform/terraform-1/my-terraform-project 
           terraform apply -auto-approve
+
+      - name: Generate ecr_data.json
+        run: |
+          cd Terraform/terraform-1/my-terraform-project
+          terraform output -json ecr_data_json > ../../../api/ecr_data.json
+
+      - name: Install Node.js dependencies
+        run: |
+          cd api
+          npm install
+
+      - name: Start API
+        run: |
+          cd api
+          node api.js &
 
       - name: Build Docker Image
         run: docker build -t web-app .
@@ -102,4 +117,3 @@ jobs:
             --repository-name prueba-final \
             --image-id imageTag=latest \
             --region us-east-1
-        

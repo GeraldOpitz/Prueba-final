@@ -33,6 +33,7 @@ module "lambda" {
   source = "./modules/lambda"
   SNS_TOPIC_ARN = module.sns.notifications_arn
   SQS_QUEUE_ARN = module.sqs.SQS_QUEUE_ARN
+  SQS_QUEUE_URL = module.sqs.SQS_QUEUE_URL
 }
 
 module "sqs" {
