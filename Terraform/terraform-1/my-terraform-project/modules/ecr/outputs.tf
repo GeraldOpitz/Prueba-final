@@ -3,8 +3,8 @@ output "ecr_repository_url" {
 }
 
 output "ecr_data_json" {
-  value = jsonencode({
+  value = {
     ecr_repository_url = aws_ecr_repository.prueba_final_repo.repository_url
-  })
+  }
   sensitive = false
 }
