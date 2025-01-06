@@ -56,9 +56,10 @@ resource "aws_iam_policy" "lambda_sqs_policy" {
           "sqs:ReceiveMessage",
           "sqs:DeleteMessage",
           "sqs:GetQueueAttributes",
-          "sqs:ChangeMessageVisibility"
+          "sqs:ChangeMessageVisibility",
+          "sqs:SendMessage"
         ],
-        Resource = aws_sqs_queue.message_queue.arn
+        Resource = var.SQS_QUEUE_ARN
       }
     ]
   })
