@@ -52,8 +52,8 @@ jobs:
 
       - name: Tag and Push Docker Image
         run: |
-          docker tag web-app:latest ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.us-east-1.amazonaws.com/web-app:latest
-          docker push ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.us-east-1.amazonaws.com/web-app:latest
+          docker tag web-app:latest ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.us-east-1.amazonaws.com/prueba-final:latest
+          docker push ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.us-east-1.amazonaws.com/prueba-final:latest
 
       - name: Scan Terraform Files with Snyk
         uses: snyk/actions/iac@master
