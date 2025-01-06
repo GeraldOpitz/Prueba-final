@@ -9,7 +9,7 @@ module "ec2" {
   vpc_id = module.vpc.vpc_id
   public_subnet_id = module.vpc.public_subnet_id
   private_subnet_id = module.vpc.private_subnet_id
-  security_groups = [module.sg.web_sg_name]
+  security_groups = [module.sg.web_sg_id]
 }
 
 module "vpc" {
