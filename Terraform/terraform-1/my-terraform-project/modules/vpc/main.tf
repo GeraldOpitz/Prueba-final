@@ -15,30 +15,16 @@ resource "aws_subnet" "private_subnet" {
   availability_zone = "us-east-1a"
 }
 
-resource "aws_internet_gateway" "igw" {
-  vpc_id = aws_vpc.main_vpc.id
-}
-
 resource "aws_route_table" "public_rt" {
   vpc_id = aws_vpc.main_vpc.id
-  route = [
-    {
+  route {
       cidr_block = "0.0.0.0/0"
-      gateway_id = aws_internet_gateway.igw.id
-      description = "Allow Internet access"
-      carrier_gateway_id = ""
-      core_network_arn = ""
-      destination_prefix_list_id = ""
-      egress_only_gateway_id = ""
-      ipv6_cidr_block = "::/0"
-      local_gateway_id = ""
-      nat_gateway_id = ""
-      network_interface_id = ""
-      transit_gateway_id = ""
-      vpc_endpoint_id = ""
-      vpc_peering_connection_id = ""
+      gateway_id = aws_internet_gateway.igw.id 
     }
-  ]
+}
+
+resource "aws_internet_gateway" "igw" {
+  vpc_id = aws_vpc.main_vpc.id
 }
 resource "aws_route_table_association" "public_association" {
   subnet_id = aws_subnet.public_subnet.id
