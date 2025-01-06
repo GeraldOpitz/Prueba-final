@@ -1,8 +1,3 @@
-module "lambda" {
-  source = "../lambda" 
-  SNS_TOPIC_ARN = module.sns.notifications_arn
-}
-
 resource "aws_sqs_queue" "message_queue" {
   name = "message-queue"
 }

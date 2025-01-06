@@ -1,7 +1,3 @@
-module "sns" {
-  source = "../sns"
-}
-
 resource "aws_lambda_function" "process_message" {
     function_name = "processMessage"
     filename = "lambda.zip"
@@ -42,7 +38,7 @@ resource "aws_iam_policy" "sns_publish_policy" {
             {
                 Action   = "sns:Publish",
                 Effect   = "Allow",
-                Resource = module.sns.notifications_arn
+                Resource = var.SNS_TOPIC_ARN
             }
         ]
     })
