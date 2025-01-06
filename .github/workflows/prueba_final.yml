@@ -51,7 +51,7 @@ jobs:
         continue-on-error: true
         run: |
           cd Terraform/terraform-1/my-terraform-project
-          ECR_REPOSITORY_URL=$(terraform output -raw ecr_repository_url | tr -d '\n' | tr -d '\r') # Elimina saltos de línea
+          ECR_REPOSITORY_URL=$(terraform output -raw ecr_repository_url | tr -d '\n' | tr -d '\r')
           printf "ECR_REPOSITORY_URL=%s\n" "$ECR_REPOSITORY_URL" >> $GITHUB_ENV
         
       - name: Debug ECR_REPOSITORY_URL
