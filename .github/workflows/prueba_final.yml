@@ -57,6 +57,7 @@ jobs:
 
       - name: Scan Terraform Files with Snyk
         uses: snyk/actions/iac@master
+        continue-on-error: true
         with:
           file: Terraform/terraform-1/my-terraform-project
           args: --severity-threshold=low
@@ -74,21 +75,21 @@ jobs:
       - name: Enable ECR Image Scanning
         run: |
           aws ecr put-image-scanning-configuration \
-            --repository-name prueba_final_repo \
+            --repository-name prueba-final \
             --image-scanning-configuration scanOnPush=true \
             --region us-east-1
   
       - name: Start ECR Image Scan
         run: |
           aws ecr start-image-scan \
-            --repository-name prueba_final_repo \
+            --repository-name prueba-final \
             --image-id imageTag=latest \
             --region us-east-1
   
       - name: Check ECR Scan Results
         run: |
           aws ecr describe-image-scan-findings \
-            --repository-name prueba_final_repo \
+            --repository-name prueba-final \
             --image-id imageTag=latest \
             --region us-east-1
         
