@@ -12,6 +12,10 @@ module "ec2" {
   security_groups = [module.sg.web_sg_id]
 }
 
+module "ecr" {
+  source = "./modules/ecr"
+}
+
 module "vpc" {
   source = "./modules/vpc"
 }
