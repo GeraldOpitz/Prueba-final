@@ -58,7 +58,7 @@ resource "aws_iam_policy" "lambda_sqs_policy" {
           "sqs:GetQueueAttributes",
           "sqs:ChangeMessageVisibility"
         ],
-        Resource = var.SQS_QUEUE_ARN
+        Resource = aws_sqs_queue.message_queue.arn
       }
     ]
   })

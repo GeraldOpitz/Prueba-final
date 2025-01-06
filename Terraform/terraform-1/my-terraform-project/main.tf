@@ -18,15 +18,7 @@ module "lambda" {
   SQS_QUEUE_ARN = module.sqs.message_queue_arn
 }
 
-module "sg" {
-  source = "./modules/sg"
-}
-
 module "sqs" {
   source = "./modules/sqs"
   lambda_arn = module.lambda.process_message_arn
-}
-
-module "vpc" {
-  source = "./modules/vpc"
 }
