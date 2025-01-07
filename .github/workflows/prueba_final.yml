@@ -54,20 +54,33 @@ jobs:
           ECR_REPOSITORY_URL=$(terraform output -raw ecr_repository_url | tr -d '\n' | tr -d '\r') # Elimina saltos de línea
           printf "ECR_REPOSITORY_URL=%s\n" "$ECR_REPOSITORY_URL" >> $GITHUB_ENV
         
+      - name: Export EC2 Instance ID
+        continue-on-error: true
+        run: |
+          cd Terraform/terraform-1/my-terraform-project
+          EC2_INSTANCE_ID=$(terraform output -raw ec2_instance_id | tr -d '\n' | tr -d '\r') # Elimina saltos de línea
+          printf "EC2_INSTANCE_ID=%s\n" "$EC2_INSTANCE_ID" >> $GITHUB_ENV
+
       - name: Debug ECR_REPOSITORY_URL
         run: |
           echo "Valor de la variable ECR_REPOSITORY_URL: $ECR_REPOSITORY_URL"
+
+      - name: Create S3 Bucket (if not exists)
+        run: |
+          aws s3api create-bucket --bucket ec2-bucket --region us-east-1 --create-bucket-configuration LocationConstraint=us-east-1 || echo "Bucket already exists"
+
+      - name: Deploy API to EC2
+        run: |
+          sudo apt-get install awscli
+            
+          aws s3 cp api/api.js s3://ec2-bucket/api.js
+            
+          aws ssm send-command \
+            --document-name "AWS-RunShellScript" \
+            --targets "Key=instanceIds,Values=${{ env.EC2_INSTANCE_ID }}" \
+            --parameters 'commands=["aws s3 cp s3://ec2-bucket/api.js /home/ec2-user/api.js", "cd /home/ec2-user && npm install && node api.js &"]' \
+            --region us-east-1
         
-      - name: Install Node.js dependencies
-        run: |
-          cd api
-          npm install
-
-      - name: Start API
-        run: |
-          cd api
-          node api.js &
-
       - name: Build Docker Image
         run: docker build -t web-app .
 
