@@ -67,19 +67,21 @@ jobs:
 
       - name: Create S3 Bucket (if not exists)
         run: |
-          aws s3api create-bucket --bucket ec2-bucket-gopitz-123 --region us-east-1 || echo "Bucket already exists"
+          aws s3api create-bucket --bucket ec2-bucket-gopitz-321 --region us-east-1 || echo "Bucket already exists"
 
       - name: Deploy API to EC2
         run: |
           sudo apt-get install awscli
             
-          aws s3 cp api/api.js s3://ec2-bucket-gopitz-123/api.js
+          aws s3 cp api/api.js s3://ec2-bucket-gopitz-321/api.js
+          aws s3 cp api/package.json s3://ec2-bucket-gopitz-321/package.json
             
           aws ssm send-command \
             --document-name "AWS-RunShellScript" \
             --targets "Key=instanceIds,Values=${{ env.EC2_INSTANCE_ID }}" \
-            --parameters 'commands=["aws s3 cp s3://ec2-bucket-gopitz-123/api.js /home/ec2-user/api.js", "cd /home/ec2-user && npm install && node api.js &"]' \
+            --parameters '{"commands":["aws s3 cp s3://ec2-bucket-gopitz-321/api.js /home/ec2-user/api.js", "aws s3 cp s3://ec2-bucket-gopitz-321/package.json /home/ec2-user/package.json", "cd /home/ec2-user && npm install && node api.js &"]}' \
             --region us-east-1
+
         
       - name: Build Docker Image
         run: docker build -t web-app .
