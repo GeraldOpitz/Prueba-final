@@ -67,7 +67,7 @@ jobs:
 
       - name: Create S3 Bucket (if not exists)
         run: |
-          aws s3api create-bucket --bucket ec2-bucket --region us-east-1 --create-bucket-configuration LocationConstraint=us-east-1 || echo "Bucket already exists"
+          aws s3api create-bucket --bucket ec2-bucket --region us-east-1 || echo "Bucket already exists"
 
       - name: Deploy API to EC2
         run: |
