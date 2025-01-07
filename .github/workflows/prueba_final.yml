@@ -24,29 +24,6 @@ jobs:
         run: |
           aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.us-east-1.amazonaws.com
 
-      - name: Set up terraform
-        uses: hashicorp/setup-terraform@v2
-        with:
-          terraform_version: 1.5.6
-
-      - name: Clean .terraform directory
-        run: rm -rf .terraform
-          
-      - name: Terraform Init
-        run: |
-          cd Terraform/terraform-1/my-terraform-project
-          terraform init
-
-      - name: Terraform Plan
-        run: |
-          cd Terraform/terraform-1/my-terraform-project 
-          terraform plan
-
-      - name: Terraform Apply
-        run: |
-          cd Terraform/terraform-1/my-terraform-project 
-          terraform apply -auto-approve
-
       - name: Export ECR repository URL
         continue-on-error: true
         run: |
@@ -54,34 +31,6 @@ jobs:
           ECR_REPOSITORY_URL=$(terraform output -raw ecr_repository_url | tr -d '\n' | tr -d '\r')
           printf "ECR_REPOSITORY_URL=%s\n" "$ECR_REPOSITORY_URL" >> $GITHUB_ENV
         
-      - name: Export EC2 Instance ID
-        continue-on-error: true
-        run: |
-          cd Terraform/terraform-1/my-terraform-project
-          EC2_INSTANCE_ID=$(terraform output -raw ec2_instance_id | tr -d '\n' | tr -d '\r') # Elimina saltos de línea
-          printf "EC2_INSTANCE_ID=%s\n" "$EC2_INSTANCE_ID" >> $GITHUB_ENV
-
-      - name: Debug ECR_REPOSITORY_URL
-        run: |
-          echo "Valor de la variable ECR_REPOSITORY_URL: $ECR_REPOSITORY_URL"
-
-      - name: Create S3 Bucket (if not exists)
-        run: |
-          aws s3api create-bucket --bucket ec2-bucket-gopitz-321 --region us-east-1 || echo "Bucket already exists"
-
-      - name: Deploy API to EC2
-        run: |
-          sudo apt-get install awscli
-            
-          aws s3 cp api/api.js s3://ec2-bucket-gopitz-321/api.js
-          aws s3 cp api/package.json s3://ec2-bucket-gopitz-321/package.json
-            
-          aws ssm send-command \
-            --document-name "AWS-RunShellScript" \
-            --targets "Key=instanceIds,Values=${{ env.EC2_INSTANCE_ID }}" \
-            --parameters '{"commands":["aws s3 cp s3://ec2-bucket-gopitz-321/api.js /home/ec2-user/api.js", "aws s3 cp s3://ec2-bucket-gopitz-321/package.json /home/ec2-user/package.json", "cd /home/ec2-user && npm install && node api.js &"]}' \
-            --region us-east-1
-
         
       - name: Build Docker Image
         run: docker build -t web-app .
@@ -90,51 +39,3 @@ jobs:
         run: |
           docker tag web-app:latest ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.us-east-1.amazonaws.com/prueba-final:latest
           docker push ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.us-east-1.amazonaws.com/prueba-final:latest
-
-      - name: Scan Terraform Files with Snyk
-        uses: snyk/actions/iac@master
-        continue-on-error: true
-        with:
-          file: Terraform/terraform-1/my-terraform-project
-          args: --severity-threshold=low
-        env:
-          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-
-      - name: Scan Docker Image with Snyk
-        uses: snyk/actions/docker@master
-        continue-on-error: true
-        with:
-          image: web-app:latest
-        env:
-          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-
-      - name: Enable ECR Image Scanning
-        run: |
-          aws ecr put-image-scanning-configuration \
-            --repository-name prueba-final \
-            --image-scanning-configuration scanOnPush=true \
-            --region us-east-1
-  
-      - name: Start ECR Image Scan
-        run: |
-          aws ecr start-image-scan \
-            --repository-name prueba-final \
-            --image-id imageTag=latest \
-            --region us-east-1
-
-      - name: Wait for ECR Image Scan to complete
-        run: |
-          STATUS="IN_PROGRESS"
-          while [[ "$STATUS" == "IN_PROGRESS" ]]; do
-            echo "Waiting for scan to complete..."
-            sleep 30
-            STATUS=$(aws ecr describe-image-scan-findings --repository-name prueba-final --image-id imageTag=latest --region us-east-1 --query 'imageScanStatus.status' --output text)
-          done
-          echo "Scan complete, fetching results..."            
-  
-      - name: Check ECR Scan Results
-        run: |
-          aws ecr describe-image-scan-findings \
-            --repository-name prueba-final \
-            --image-id imageTag=latest \
-            --region us-east-1
